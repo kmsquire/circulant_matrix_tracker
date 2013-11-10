@@ -72,7 +72,7 @@ def load_video_info(video_path):
     assert text_files, \
         "No initial position and ground truth (*_gt.txt) to load."
 
-    first_file_path = os.path.join(video_path, text_files[0])
+    first_file_path = text_files[0]
     #f = open(first_file_path, "r")
     #ground_truth = textscan(f, '%f,%f,%f,%f') # [x, y, width, height]
     #ground_truth = cat(2, ground_truth{:})
@@ -111,7 +111,7 @@ def load_video_info(video_path):
 
     text_files = glob.glob(os.path.join(video_path, "*_frames.txt"))
     if text_files:
-        first_file_path = os.path.join(video_path, text_files[0])
+        first_file_path = text_files[0]
         #f = open(first_file_path, "r")
         #frames = textscan(f, '%f,%f')
         frames = pylab.loadtxt(first_file_path, delimiter=",", dtype=int)
