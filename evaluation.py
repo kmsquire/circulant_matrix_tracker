@@ -27,6 +27,7 @@ import pylab
 from circulant_matrix_tracker import *
 
 debug = False
+gui = True
 
 def load_video_info(video_path):
     """
@@ -309,14 +310,16 @@ def track(input_video_path):
                 pylab.show(block=True)
 
 
-        print(str(frame)+' loc '+str(pos[0])+" "+str(pos[1]))
+        tl = pos - pylab.floor(target_sz / 2)
+        print(str(frame)+' loc '+str(tl[1])+" "+str(tl[0]))
 
         # save position and calculate FPS
         positions[frame, :] = pos
         total_time += time.time() - start_time
 
         # visualization
-        plot_tracking(frame, pos, target_sz, im, ground_truth)
+        if gui:
+            plot_tracking(frame, pos, target_sz, im, ground_truth)
         # end of "for each image in video"
 
     if should_resize_image:

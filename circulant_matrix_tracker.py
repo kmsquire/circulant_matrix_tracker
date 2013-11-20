@@ -34,7 +34,7 @@ class CirculantMatrixTracker:
         self.pos = pos
 
         # desired output (gaussian shaped), bandwidth proportional to target size
-        output_sigma = pylab.sqrt(pylab.prod(target_sz)) * self.output_sigma_factor
+        output_sigma = pylab.sqrt(pylab.prod(self.sz)) * self.output_sigma_factor
 
         grid_y = pylab.arange(self.sz[0]) - pylab.floor(self.sz[0]/2)
         grid_x = pylab.arange(self.sz[1]) - pylab.floor(self.sz[1]/2)
