@@ -27,7 +27,8 @@ import pylab
 from circulant_matrix_tracker import *
 
 debug = False
-gui = True
+gui = False
+save = True
 
 def load_video_info(video_path):
     """
@@ -257,6 +258,16 @@ def plot_tracking(frame, pos, target_sz, im, ground_truth):
 
     return
 
+def printTrack( fid , resized , frame , pos , sz ):
+    p0 = [pos[0]-pylab.floor(sz[0]/2),pos[1]-pylab.ceil(sz[1]/2)]
+    p1 = [pos[0]+pylab.floor(sz[0]/2),pos[1]+pylab.ceil(sz[1]/2)]
+
+    if resized:
+        p0 = [x*2 for x in p0]
+        p1 = [x*2 for x in p0]
+
+    fid.write(str(frame)+" "+str(p0[0])+" "+str(p0[1])+" "+str(p1[0])+" "+str(p1[1])+"\n")
+
 def track(input_video_path):
     """
     notation: variables ending with f are in the frequency domain.
@@ -271,6 +282,9 @@ def track(input_video_path):
     total_time = 0  # to calculate FPS
     positions = pylab.zeros((len(img_files), 2))  # to calculate precision
 
+    if save:
+        file_name = "PCirculant_"+os.path.split(input_video_path)[1]+".txt"
+        file_out = open(file_name, 'w')
 
     for frame, image_filename in enumerate(img_files):
 
@@ -289,9 +303,14 @@ def track(input_video_path):
 
         if frame == 0:
             tracker.initialize(im,pos,target_sz)
+            if save:
+                printTrack(file_out,should_resize_image,frame,pos,target_sz)
         else:
             pos = tracker.find(im)
             tracker.update_template()
+
+            if save:
+                printTrack(file_out,should_resize_image,frame,pos,target_sz)
 
             if debug:
                 print("Frame ==", frame)
@@ -325,11 +344,14 @@ def track(input_video_path):
     if should_resize_image:
         positions = positions * 2
 
+    if save:
+        file_out.close()
+
     print("Frames-per-second:",  len(img_files) / total_time)
 
     title = os.path.basename(os.path.normpath(input_video_path))
 
-    if len(ground_truth) > 0:
+    if gui and len(ground_truth) > 0:
         # show the precisions plot
         show_precision(positions, ground_truth, video_path, title)
 
