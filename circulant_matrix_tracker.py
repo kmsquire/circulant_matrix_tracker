@@ -3,12 +3,13 @@ from __future__ import print_function
 
 
 import pylab
+import scipy.misc
 
 debug = False
 
 class CirculantMatrixTracker:
 
-    def __init__(self):
+    def __init__(self, should_resize_image):
         # parameters according to the paper --
         self.padding = 1.0  # extra area surrounding the target
         #spatial bandwidth (proportional to target)
@@ -18,7 +19,7 @@ class CirculantMatrixTracker:
         # linear interpolation factor for adaptation
         self.interpolation_factor = 0.075
 
-        self.should_resize_image = False
+        self.should_resize_image = should_resize_image
 
         self.z = None
         self.alphaf = None
@@ -28,6 +29,9 @@ class CirculantMatrixTracker:
         if len(image.shape) == 3 and image.shape[2] > 1:
             image = rgb2gray(image)
         self.image = image
+        if self.should_resize_image:
+            self.image = scipy.misc.imresize(self.image, 0.5)
+            self.image = self.image / 255.0
 
         # window size, taking padding into account
         self.sz = pylab.floor(target_sz * (1 + self.padding))
@@ -63,6 +67,9 @@ class CirculantMatrixTracker:
         if len(image.shape) == 3 and image.shape[2] > 1:
             image = rgb2gray(image)
         self.image = image
+        if self.should_resize_image:
+            self.image = scipy.misc.imresize(self.image, 0.5)
+            self.image = self.image / 255.0
 
         # get subwindow at current estimated target position,
         # to train classifer

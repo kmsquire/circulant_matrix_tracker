@@ -21,14 +21,13 @@ import glob
 import time
 from optparse import OptionParser
 
-import scipy.misc
 import pylab
 
 from circulant_matrix_tracker import *
 
 debug = False
-gui = False
-save = True
+gui = True
+save = False
 
 def load_video_info(video_path):
     """
@@ -180,7 +179,7 @@ def show_precision(positions, ground_truth, video_path, title):
     return
 
 
-def plot_tracking(frame, pos, target_sz, im, ground_truth):
+def plot_tracking(frame, pos, target_sz, should_resize_image, im, ground_truth):
 
     global \
         tracking_figure, tracking_figure_title, tracking_figure_axes, \
@@ -231,6 +230,13 @@ def plot_tracking(frame, pos, target_sz, im, ground_truth):
 
     rect_y, rect_x = tuple(pos - target_sz/2.0)
     rect_height, rect_width = target_sz
+
+    if should_resize_image:
+        rect_y = rect_y * 2
+        rect_x = rect_x * 2
+        rect_height = rect_height * 2
+        rect_width = rect_width * 2
+
     tracking_rectangle.set_xy((rect_x, rect_y))
     tracking_rectangle.set_width(rect_width)
     tracking_rectangle.set_height(rect_height)
@@ -273,7 +279,6 @@ def track(input_video_path):
     notation: variables ending with f are in the frequency domain.
     """
     global tracker
-    tracker = CirculantMatrixTracker()
 
     info = load_video_info(input_video_path)
     img_files, pos, target_sz, \
@@ -281,6 +286,8 @@ def track(input_video_path):
 
     total_time = 0  # to calculate FPS
     positions = pylab.zeros((len(img_files), 2))  # to calculate precision
+
+    tracker = CirculantMatrixTracker(should_resize_image)
 
     if save:
         file_name = "PCirculant_"+os.path.split(input_video_path)[1]+".txt"
@@ -338,7 +345,7 @@ def track(input_video_path):
 
         # visualization
         if gui:
-            plot_tracking(frame, pos, target_sz, im, ground_truth)
+            plot_tracking(frame, pos, target_sz, should_resize_image, im, ground_truth)
         # end of "for each image in video"
 
     if should_resize_image:
@@ -370,6 +377,15 @@ def parse_arguments():
                       metavar="PATH", type="string", default=None,
                       help="path to a folder o a MILTrack video")
 
+    parser.add_option("--gui", dest="store_gui",
+                      default=gui,
+                      help="turn gui and and off")
+
+    parser.add_option("--save", dest="store_save",
+                      default=save,
+                      help="turn on saving tracks")
+
+
     (options, args) = parser.parse_args()
     #print (options, args)
 
@@ -383,7 +399,12 @@ def parse_arguments():
 
 
 def main():
+    global gui,save
+
     options = parse_arguments()
+
+    gui = options.store_gui.lower() == 'true'
+    save = options.store_save.lower() == 'true'
 
     track(options.video_path)
 
