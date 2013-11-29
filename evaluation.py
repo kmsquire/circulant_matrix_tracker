@@ -264,9 +264,9 @@ def printTrack( fid , resized , frame , pos , sz ):
 
     if resized:
         p0 = [x*2 for x in p0]
-        p1 = [x*2 for x in p0]
+        p1 = [x*2 for x in p1]
 
-    fid.write(str(frame)+" "+str(p0[0])+" "+str(p0[1])+" "+str(p1[0])+" "+str(p1[1])+"\n")
+    fid.write(str(frame)+","+str(p0[1])+","+str(p0[0])+","+str(p1[1])+","+str(p1[0])+"\n")
 
 def track(input_video_path):
     """
